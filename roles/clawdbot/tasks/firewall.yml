@@ -60,6 +60,12 @@
       COMMIT
     create: false
 
+- name: Create Docker daemon config directory
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
 - name: Configure Docker daemon to work with UFW
   ansible.builtin.template:
     src: daemon.json.j2
