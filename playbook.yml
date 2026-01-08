@@ -42,7 +42,7 @@
   post_tasks:
     - name: Create post-installation setup script
       ansible.builtin.template:
-        src: clawdbot-setup.sh.j2
+        src: roles/clawdbot/templates/clawdbot-setup.sh.j2
         dest: /tmp/clawdbot-setup.sh
         mode: '0755'
         owner: root
