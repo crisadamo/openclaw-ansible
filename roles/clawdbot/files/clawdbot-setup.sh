@@ -52,8 +52,9 @@ echo ""
 echo -e "${YELLOW}Switching to clawdbot user for setup...${NC}"
 echo ""
 
-# Create a .bashrc snippet that shows the welcome message once
-cat > /tmp/.clawdbot-motd << 'MOTD_EOF'
+# Create init script that will be sourced on login
+cat > /home/clawdbot/.clawdbot-init << 'INIT_EOF'
+# Display welcome message
 echo "============================================"
 echo "📋 Clawdbot Setup - Next Steps"
 echo "============================================"
@@ -85,10 +86,19 @@ echo "============================================"
 echo ""
 echo "Type 'exit' to return to previous user"
 echo ""
-# Remove this file so it only shows once
-rm -f /tmp/.clawdbot-motd
-MOTD_EOF
+
+# Remove this init file after first login
+rm -f ~/.clawdbot-init
+INIT_EOF
+
+chown clawdbot:clawdbot /home/clawdbot/.clawdbot-init
+
+# Add one-time sourcing to .bashrc if not already there
+if ! grep -q '.clawdbot-init' /home/clawdbot/.bashrc; then
+    echo '' >> /home/clawdbot/.bashrc
+    echo '# One-time setup message' >> /home/clawdbot/.bashrc
+    echo '[ -f ~/.clawdbot-init ] && source ~/.clawdbot-init' >> /home/clawdbot/.bashrc
+fi
 
 # Switch to clawdbot user with login shell
-# Use bash --rcfile to source the MOTD before starting interactive shell
-exec sudo -i -u clawdbot bash --rcfile <(cat ~/.bashrc 2>/dev/null; cat /tmp/.clawdbot-motd 2>/dev/null)
+exec sudo -i -u clawdbot
