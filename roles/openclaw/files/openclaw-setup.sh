@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Accept variables with fallbacks
+openclaw_user="${1:-openclaw}"
+openclaw_home="${2:-/home/openclaw}"
+
 # Enable 256 colors
 export TERM=xterm-256color
 export COLORTERM=truecolor
@@ -49,12 +53,12 @@ echo -e "📚 Documentation: ${GREEN}https://docs.openclaw.ai${NC}"
 echo ""
 
 # Switch to openclaw user for setup
-echo -e "${YELLOW}Switching to openclaw user for setup...${NC}"
+echo -e "${YELLOW}Switching to ${openclaw_user} user for setup...${NC}"
 echo ""
 echo "DEBUG: About to create init script..."
 
 # Create init script that will be sourced on login
-cat > /home/openclaw/.openclaw-init << 'INIT_EOF'
+cat > "${openclaw_home}/.openclaw-init" << 'INIT_EOF'
 # Display welcome message
 echo "============================================"
 echo "📋 OpenClaw Setup - Next Steps"
@@ -92,15 +96,15 @@ echo ""
 rm -f ~/.openclaw-init
 INIT_EOF
 
-chown openclaw:openclaw /home/openclaw/.openclaw-init
+chown "${openclaw_user}:${openclaw_user}" "${openclaw_home}/.openclaw-init"
 
 # Add one-time sourcing to .bashrc if not already there
-grep -q '.openclaw-init' /home/openclaw/.bashrc 2>/dev/null || {
-    echo '' >> /home/openclaw/.bashrc
-    echo '# One-time setup message' >> /home/openclaw/.bashrc
-    echo '[ -f ~/.openclaw-init ] && source ~/.openclaw-init' >> /home/openclaw/.bashrc
+grep -q '.openclaw-init' "${openclaw_home}/.bashrc" 2>/dev/null || {
+    echo '' >> "${openclaw_home}/.bashrc"
+    echo '# One-time setup message' >> "${openclaw_home}/.bashrc"
+    echo '[ -f ~/.openclaw-init ] && source ~/.openclaw-init' >> "${openclaw_home}/.bashrc"
 }
 
 # Switch to openclaw user with explicit interactive shell
 # Using setsid to create new session + force pseudo-terminal allocation
-exec sudo -i -u openclaw /bin/bash --login
+exec sudo -i -u "${openclaw_user}" /bin/bash --login
